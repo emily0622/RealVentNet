@@ -1,26 +1,15 @@
+from xmlrpc.client import NOT_WELLFORMED_ERROR
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Profile, Meep
-from .forms import MeepForm, SignUpForm
+from .models import Profile, Meep, Comment
+from .forms import MeepForm, SignUpForm, CommentForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
+from django.shortcuts import render, get_object_or_404
 
 def home(request):
-	# if request.user.is_authenticated:
-		# form = MeepForm(request.POST or None)
-		# if request.method == "POST":
-		# 	if form.is_valid():
-		# 		meep = form.save(commit=False)
-		# 		meep.user = request.user
-		# 		meep.save()
-		# 		messages.success(request, ("Your Meep Has Been Posted!"))
-		# 		return redirect('home')
-		
-		# meeps = Meep.objects.all().order_by("-created_at")
-		# return render(request, 'home.html', {"meeps":meeps, "form":form})
-	# else:
 	meeps = Meep.objects.all().order_by("-created_at")
 	return render(request, 'home.html', {"meeps":meeps})
 
@@ -48,24 +37,64 @@ def add_ventpost(request):
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
 		return redirect('home')
 
+def venthighlight(request, slug):
+	template_name = 'venthighlight.html'
+	post = get_object_or_404(Meep, meepid=slug)
+	comments = Comment.objects.filter(post=slug).order_by("-created_on")
+	# comment_object = get_object_or_404(Comment, post=post)
+	# comments = comment_object.comments.filter(active=True)
+	new_comment = None
+	# Comment posted
+	# if request.method == 'POST':
+	# 	comment_form = CommentForm(data=request.POST)
+	# 	if comment_form.is_valid():
 
-# def venthighlight(request):
-# 	if request.user.is_authenticated:
-# 		form = MeepForm(request.POST or None)
-# 		if request.method == "POST":
-# 			if form.is_valid():
-# 				meep = form.save(commit=False)
-# 				meep.user = request.user
-# 				meep.save()
-# 				messages.success(request, ("Your Meep Has Been Posted!"))
-# 				return redirect('home')
-		
-# 		meeps = Meep.objects.all().order_by("-created_at")
-# 		return render(request, 'home.html', {"meeps":meeps, "form":form})
-# 	else:
-# 		meeps = Meep.objects.all().order_by("-created_at")
-# 		return render(request, 'home.html', {"meeps":meeps})
+	# 		# Create Comment object but don't save to database yet
+	# 		new_comment = comment_form.save(commit=False)
+	# 		# Assign the current post to the comment
+	# 		new_comment.post = comment_object
+	# 		new_comment.name = request.user
+	# 		# Save the comment to the database
+	# 		new_comment.save()
+	# else:
+	comment_form = CommentForm()
 
+	return render(request, template_name, {'post': post,
+											'comments': comments,
+											'new_comment': new_comment,
+											'comment_form': comment_form})
+
+
+
+
+def addcomment(request, slug):
+	template_name = 'addcomment.html'
+	post = get_object_or_404(Meep, meepid=slug)
+	new_comment = None
+	# Comment posted
+	if request.method == 'POST':
+		comment_form = CommentForm(data=request.POST)
+		if comment_form.is_valid():
+
+			# Create Comment object but don't save to database yet
+			new_comment = comment_form.save(commit=False)
+			# Assign the current post to the comment
+			new_comment.post = post
+			new_comment.name = request.user
+			# Save the comment to the database
+			new_comment.save()
+			# redirect_url = "venthighlight/" + slug
+			# return redirect(redirect_url)
+			# return venthighlight(request, slug)
+			messages.success(request, ("Added comment"))
+		return venthighlight(request, slug)
+	else:
+		comment_form = CommentForm()
+
+
+	return render(request, template_name, {'post': post,
+											'new_comment': new_comment,
+											'comment_form': comment_form})
 
 
 

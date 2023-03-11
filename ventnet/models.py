@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+import uuid
 
 # create meep model
 class Meep(models.Model):
@@ -9,10 +10,11 @@ class Meep(models.Model):
 		on_delete=models.DO_NOTHING
 		)
 	title = models.CharField(max_length=50)
-	link = models.URLField(max_length=200)
+	link = models.URLField(max_length=200, blank=True)
 	# postimg = models.ImageField(upload_to='images/')
-	body = models.CharField(max_length=400, default = "")
+	body = models.CharField(max_length=400)
 	created_at = models.DateTimeField(auto_now_add=True)
+	meepid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
 	def __str__(self):
 		return(
@@ -21,6 +23,23 @@ class Meep(models.Model):
 			f"{self.body}..."
 			)
 
+
+class Comment(models.Model):
+	post = models.ForeignKey(Meep,on_delete=models.CASCADE,related_name='post')
+	# name = models.ForeignKey(
+	# 	User, related_name="name", 
+	# 	on_delete=models.DO_NOTHING
+	# 	)
+	name = models.CharField(max_length=50)
+	body = models.TextField(max_length=200)
+	created_on = models.DateTimeField(auto_now_add=True)
+	active = models.BooleanField(default=False)
+
+	class Meta:
+		ordering = ['created_on']
+
+	def __str__(self):
+		return 'Comment {} by {}'.format(self.body, self.name)
 
 # Create A User Profile Model
 class Profile(models.Model):

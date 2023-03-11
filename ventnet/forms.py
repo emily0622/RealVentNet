@@ -1,5 +1,5 @@
 from django import forms
-from .models import Meep
+from .models import Meep, Comment
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -20,6 +20,12 @@ class MeepForm(forms.ModelForm):
 	class Meta:
 		model = Meep
 		exclude = ("user",)
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('name','post', 'body')
 
 
 class SignUpForm(UserCreationForm):

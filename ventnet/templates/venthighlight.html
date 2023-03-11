@@ -10,47 +10,28 @@
 
 	<h1>VentPosts!</h1>
 <br/>
-	{% for meep in meeps %}
-		<!-- <div class="alert alert-dark" role="alert">
-		  {{ meep.body }}<br/>
-		  <small class="text-muted">
-		  	({{ meep.created_at}}) By 
-		  	@{{ meep.user.username }}
-		  </small>
-		</div><br/><br/> -->
-		<div class="alert alert-dark" role="alert">
-		  {{ meep.title }}<br/>
-		  <button type="button" class="btn btn-link btn-sm">Source</button>
-		  <br/>
-		  <small class="text-muted">
-		  	({{ meep.created_at}}) By 
-		  	@{{ meep.user.username }}
-			  <br/>
-			{{ meep.body }}
-			<br/>
-		  </small>
-		  <br/>
-		  <button type="button" class="btn btn-light btn-sm">Read More</button>
-		  <button type="button" class="btn btn-light btn-sm">Comment</button>
-		  <button type="button" class="btn btn-light btn-sm">Forward</button>
-		  <button type="button" class="btn btn-light btn-sm">Report</button>
-
-		</div><br/><br/>
-	{% endfor %}
-
-</div>
-
-<!-- <div class="col-4">
-				<br/><br/><br/>
-{% if form %}
-<form  method=POST>
-	{% csrf_token %}
-  	{{ form.as_p }}
 
 
-  <button type="submit" class="btn btn-secondary">Post Meep!</button>
-</form>
-{% endif %}
-</div> -->
+<div class="alert alert-dark" role="alert">
+  {{ post.title }}<br/>
+  <button type="button" class="btn btn-link btn-sm">Source</button>
+  <br/>
+  <small class="text-muted">
+	  ({{ post.created_at}}) By 
+	  @{{ post.user.username }}
+	  <br/>
+	{{ post.body }}
+	<br/>
+  </small>
+  <br/>
+	<a type="button" class="btn btn-light btn-sm"
+	href="{% url 'addcomment' post.meepid %}"
+	>Comment</a>
+	<button type="button" class="btn btn-light btn-sm">Forward</button>
+	<button type="button" class="btn btn-light btn-sm">Report</button>
+
+</div><br/><br/>
+
+
 
 {% endblock %}
