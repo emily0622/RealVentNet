@@ -40,30 +40,14 @@ def add_ventpost(request):
 def venthighlight(request, slug):
 	template_name = 'venthighlight.html'
 	post = get_object_or_404(Meep, meepid=slug)
-	comments = Comment.objects.filter(post=slug).order_by("-created_on")
+	comments = Comment.objects.filter(post=post).order_by("-created_on")
+	# comments = Comment.objects.all()
+	# comments = get_object_or_404(Comment, post=)
 	# comment_object = get_object_or_404(Comment, post=post)
 	# comments = comment_object.comments.filter(active=True)
-	new_comment = None
-	# Comment posted
-	# if request.method == 'POST':
-	# 	comment_form = CommentForm(data=request.POST)
-	# 	if comment_form.is_valid():
-
-	# 		# Create Comment object but don't save to database yet
-	# 		new_comment = comment_form.save(commit=False)
-	# 		# Assign the current post to the comment
-	# 		new_comment.post = comment_object
-	# 		new_comment.name = request.user
-	# 		# Save the comment to the database
-	# 		new_comment.save()
-	# else:
-	comment_form = CommentForm()
 
 	return render(request, template_name, {'post': post,
-											'comments': comments,
-											'new_comment': new_comment,
-											'comment_form': comment_form})
-
+											'comments': comments})
 
 
 
@@ -73,7 +57,7 @@ def addcomment(request, slug):
 	new_comment = None
 	# Comment posted
 	if request.method == 'POST':
-		comment_form = CommentForm(data=request.POST)
+		comment_form = CommentForm(request.POST)
 		if comment_form.is_valid():
 
 			# Create Comment object but don't save to database yet
@@ -87,7 +71,10 @@ def addcomment(request, slug):
 			# return redirect(redirect_url)
 			# return venthighlight(request, slug)
 			messages.success(request, ("Added comment"))
-		return venthighlight(request, slug)
+			return venthighlight(request, slug)
+		else:
+			messages.success(request, ("couldn;t add comment"))
+			return venthighlight(request, slug)
 	else:
 		comment_form = CommentForm()
 

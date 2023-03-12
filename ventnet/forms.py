@@ -23,9 +23,22 @@ class MeepForm(forms.ModelForm):
 
 
 class CommentForm(forms.ModelForm):
-    class Meta:
-        model = Comment
-        fields = ('name','post', 'body')
+    # class Meta:
+    #     model = Comment
+    #     fields = ('name','post', 'body')
+	body = forms.CharField(required=True, 
+		widget=forms.widgets.Textarea(
+			attrs={
+			"placeholder": "Enter Your comment!",
+			"class":"form-control",
+			}
+			),
+			label="",
+		)
+
+	class Meta:
+		model = Comment
+		exclude = ('name','post', 'active')
 
 
 class SignUpForm(UserCreationForm):
