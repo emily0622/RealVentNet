@@ -37,6 +37,31 @@ class Comment(models.Model):
 	def __str__(self):
 		return 'Comment {} by {}'.format(self.body, self.name)
 
+
+class Networks(models.Model):
+	networkname = models.CharField(max_length=50, unique=True)
+	desc = models.TextField(max_length=400)
+	created_on = models.DateTimeField(auto_now_add=True)
+	owner = models.CharField(max_length=50)
+	private = models.BooleanField(default=False)
+
+	class Meta:
+		ordering = ['created_on']
+
+
+# class NetworkNotifications(models.Model):
+# 	network = models.ForeignKey(Networks, on_delete=models.CASCADE)
+# 	fromuser = models.ForeignKey(User, related_name='fromuser', on_delete=models.CASCADE)
+# 	touser = models.ForeignKey(User, related_name='touser',on_delete=models.CASCADE)
+# 	invitedtojoin = models.BooleanField(default=False)
+# 	requestedtojoin = models.BooleanField(default=False)
+# 	created_on = models.DateTimeField(auto_now_add=True)
+
+# 	class Meta:
+# 		ordering = ['created_on']
+
+
+
 # Create A User Profile Model
 class Profile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -49,6 +74,24 @@ class Profile(models.Model):
 
 	def __str__(self):
 		return self.user.username
+
+
+
+class NetworkMembers(models.Model):
+	network = models.ForeignKey(Networks,on_delete=models.CASCADE,related_name='network')
+	user = models.ForeignKey(User,on_delete=models.CASCADE)
+	owner = models.BooleanField(default=False)
+	verified = models.BooleanField(default=False)
+	invited = models.BooleanField(default=False)
+	accepted = models.BooleanField(default=False)
+	requested = models.BooleanField(default=False)
+	created_on = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ['created_on']
+
+
+
 
 # Create Profile When New User Signs Up
 #@receiver(post_save, sender=User)

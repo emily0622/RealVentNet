@@ -1,13 +1,15 @@
 from xmlrpc.client import NOT_WELLFORMED_ERROR
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Profile, Meep, Comment
-from .forms import MeepForm, SignUpForm, CommentForm
+from .models import Profile, Meep, Comment, Networks, NetworkMembers
+from .forms import MeepForm, SignUpForm, CommentForm, CreateNetworkForm, NetworkMembersForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
+from django.forms import formset_factory
 
 def home(request):
 	meeps = Meep.objects.all().order_by("-created_at")
@@ -18,6 +20,14 @@ def profile_list(request):
 	if request.user.is_authenticated:
 		profiles = Profile.objects.exclude(user=request.user)
 		return render(request, 'profile_list.html', {"profiles":profiles})
+	else:
+		messages.success(request, ("You Must Be Logged In To View This Page..."))
+		return redirect('home')
+
+def network_list(request):
+	if request.user.is_authenticated:
+		networks = Networks.objects.all().order_by("-created_on")
+		return render(request, 'network_list.html', {"networks":networks})
 	else:
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
 		return redirect('home')
@@ -48,7 +58,6 @@ def venthighlight(request, slug):
 
 	return render(request, template_name, {'post': post,
 											'comments': comments})
-
 
 
 def addcomment(request, slug):
@@ -84,6 +93,83 @@ def addcomment(request, slug):
 											'comment_form': comment_form})
 
 
+def createnetwork(request):
+	if request.user.is_authenticated:
+		template_name = 'createnetwork.html'
+		form = CreateNetworkForm(request.POST or None)
+		if request.method == 'POST':
+			if form.is_valid():
+
+				new_net = form.save(commit=False)
+				new_net.owner = request.user
+				new_net.save()
+
+				messages.success(request, ("Added Network"))
+				return editnetwork(request, new_net.id, True)
+			else:
+				messages.success(request, ("Couldn't add network"))
+				return redirect('home')
+		else:
+			network_form = CreateNetworkForm()
+
+		return render(request, template_name, {"form": network_form})
+
+
+	else:
+		messages.success(request, ("You Must Be Logged In To View This Page..."))
+		return redirect('home')
+
+
+
+def editnetwork(request,pk, fromcreatenet=False):
+	print("NET ID IS HEREEE")
+	print(pk)
+	if request.user.is_authenticated:
+		net = get_object_or_404(Networks, id=pk)
+		print("NET ID IS HEREEE")
+		print(net)
+		profiles = Profile.objects.exclude(user=request.user)
+		profile_formset = formset_factory(NetworkMembersForm, extra=0)
+		formset = profile_formset(initial=[{'invited': x} for x in profiles])
+
+		checks = []
+		template_name = 'editnetwork.html'
+		form = NetworkMembersForm()
+
+		if (request.method == 'POST') and (fromcreatenet == False):
+			formset = profile_formset(request.POST)
+			print("post")
+			# if formset.is_valid():
+			# 	print("is valid")
+			# for form, profile in zip(formset.forms, profiles):
+			invited_list = list(formset.cleaned_data)
+			p = 0
+			for profile in profiles:
+					new_net = form.save(commit=False)
+					new_net.user = User.objects.get(username=profile)
+					new_net.network = net
+					new_net.invited = invited_list[p]['invited']
+					new_net.save()
+					p += 1
+
+
+			# 	messages.success(request, ("Added Network"))
+			# 	return redirect('home')
+			# else:
+			# 	messages.success(request, ("couldn't add network"))
+			# 	return redirect('home')
+			messages.success(request, ("Network member requests sent"))
+			return redirect('home')
+		else:
+			# network_form = CreateNetworkForm()
+			context = {'formset': formset,'checks': checks, 'pk': pk,}
+			return render(request, template_name, context)
+	else:
+		messages.success(request, ("You Must Be Logged In To View This Page..."))
+		return redirect('home')
+
+
+
 
 def profile(request, pk):
 	if request.user.is_authenticated:
@@ -104,12 +190,42 @@ def profile(request, pk):
 			# Save the profile
 			current_user_profile.save()
 
-
-
 		return render(request, "profile.html", {"profile":profile, "meeps":meeps})
 	else:
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
 		return redirect('home')		
+
+
+
+
+
+
+def networkhighlight(request, pk):
+	if request.user.is_authenticated:
+		network = Networks.objects.get(id=pk)
+
+		return render(request, "networkhighlight.html", {"network":network,})
+	else:
+		messages.success(request, ("You Must Be Logged In To View This Page..."))
+		return redirect('home')		
+
+
+
+
+def notifications(request, pk):
+	if request.user.is_authenticated:
+		profile = Profile.objects.get(user_id=pk)
+		# userobj = User.objects.get(id=pk)
+		invited = NetworkMembers.objects.filter(user=pk, invited=True).order_by("-created_at")
+
+		return render(request, "notificatinos.html", {"profile":profile, "invited":invited})
+	else:
+		messages.success(request, ("You Must Be Logged In To View This Page..."))
+		return redirect('home')		
+
+
+
+
 
 
 

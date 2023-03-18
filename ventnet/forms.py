@@ -1,5 +1,5 @@
 from django import forms
-from .models import Meep, Comment
+from .models import Meep, Comment, Networks, NetworkMembers
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -23,9 +23,6 @@ class MeepForm(forms.ModelForm):
 
 
 class CommentForm(forms.ModelForm):
-    # class Meta:
-    #     model = Comment
-    #     fields = ('name','post', 'body')
 	body = forms.CharField(required=True, 
 		widget=forms.widgets.Textarea(
 			attrs={
@@ -39,6 +36,34 @@ class CommentForm(forms.ModelForm):
 	class Meta:
 		model = Comment
 		exclude = ('name','post', 'active')
+
+
+
+class CreateNetworkForm(forms.ModelForm):
+	networkname = forms.CharField(required=True, max_length=50, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Title'}))
+	desc = forms.CharField(required=True, 
+		widget=forms.widgets.Textarea(
+			attrs={
+			"placeholder": "Enter a description of this network",
+			"class":"form-control",
+			}
+			),
+			label="",
+		)
+
+	class Meta:
+		model = Networks
+		exclude = ("owner",)
+
+
+class NetworkMembersForm(forms.ModelForm):
+	invited = forms.BooleanField(required=False)
+
+	class Meta:
+		model = NetworkMembers
+		exclude = ("network","owner","verified","user","accepted",)
+
+
 
 
 class SignUpForm(UserCreationForm):
