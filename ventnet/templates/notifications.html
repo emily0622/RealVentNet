@@ -17,17 +17,26 @@
 				{% if invited %}
 					{% for invite in invited %}
 						<div class="alert alert-dark" role="alert">
-						  {{ invite.networkname }}<br/>
-			  				<small class="text-muted">
-			  					({{ invite.created_on}}) By 
+							You were invited to join
+						  {{ invite.network.networkname }}
+						   by 
+						   {{ invite.network.owner }} <br/>
+
 
 			  				</small>
-						</div><br/><br/>
+							<form method=POST>
+								{% csrf_token %}
+							  <button name="{% invite.network.networkname %}" value="accept" type="submit" class="btn btn-light btn-sm">Accept</button>
+							  <button name="{% invite.network.networkname %}" value="decline" type="submit" class="btn btn-light btn-sm">Decline</button>
+							</form>
+
+						</div><br/>
+						<br/>
 					{% endfor %}
 				{% endif %}
 			</div>
 
-	
+{% endif %}
 {% endblock %}
 
 

@@ -85,10 +85,6 @@ class NetworkMembers(models.Model):
 	invited = models.BooleanField(default=False)
 	accepted = models.BooleanField(default=False)
 	requested = models.BooleanField(default=False)
-	created_on = models.DateTimeField(auto_now_add=True)
-
-	class Meta:
-		ordering = ['created_on']
 
 
 

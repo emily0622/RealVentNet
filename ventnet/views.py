@@ -216,9 +216,36 @@ def notifications(request, pk):
 	if request.user.is_authenticated:
 		profile = Profile.objects.get(user_id=pk)
 		# userobj = User.objects.get(id=pk)
-		invited = NetworkMembers.objects.filter(user=pk, invited=True).order_by("-created_at")
+		invited = NetworkMembers.objects.filter(user=pk, invited=True)
 
-		return render(request, "notificatinos.html", {"profile":profile, "invited":invited})
+
+		# Post Form logic
+		if request.method == "POST":
+			print("IN POST\n")
+			# Get current user
+			current_user_profile = request.user.profile
+			# Get form data
+			for invite in invited:
+				n = invite.network.networkname
+				print(n)
+				action = request.POST[n]
+				print(action)
+				# Decide to follow or unfollow
+				if action == "decline":
+					print("DECLINEED\n\n\n")
+					print(n)
+					# current_user_profile.follows.remove(profile)
+				elif action == "accept":
+					# current_user_profile.follows.add(profile)
+					print("ACCEPTED\n\n\n")
+					print(n)
+
+			# Save the profile
+			# current_user_profile.save()
+
+
+
+		return render(request, "notifications.html", {"profile":profile, "invited":invited})
 	else:
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
 		return redirect('home')		
