@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn ventnet.wsgi
+web: gunicorn social.wsgi:social
