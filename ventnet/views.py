@@ -10,10 +10,14 @@ from django import forms
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
 from django.forms import formset_factory
+import people_also_ask
 
 def home(request):
 	meeps = Meep.objects.all().order_by("-created_at")
-	return render(request, 'home.html', {"meeps":meeps})
+	r = people_also_ask.get_related_questions("how did covid start")
+	print("PEOPLE ALSO ASK")
+	print(r)
+	return render(request, 'home.html', {"meeps":meeps, "r":r})
 
 
 def profile_list(request):
@@ -127,6 +131,7 @@ def editnetwork(request,pk, fromcreatenet=False):
 	if request.user.is_authenticated:
 		net = get_object_or_404(Networks, id=pk)
 		profiles = Profile.objects.exclude(user=request.user)
+
 		profile_formset = formset_factory(NetworkMembersForm, extra=0)
 		formset = profile_formset(initial=[{'invited': x} for x in profiles])
 
