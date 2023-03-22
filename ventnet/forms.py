@@ -1,5 +1,6 @@
+from email.policy import default
 from django import forms
-from .models import Meep
+from .models import Meep, Comment, Networks, NetworkMembers
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -20,6 +21,58 @@ class MeepForm(forms.ModelForm):
 	class Meta:
 		model = Meep
 		exclude = ("user",)
+
+
+class CommentForm(forms.ModelForm):
+	body = forms.CharField(required=True, 
+		widget=forms.widgets.Textarea(
+			attrs={
+			"placeholder": "Enter Your comment!",
+			"class":"form-control",
+			}
+			),
+			label="",
+		)
+
+	class Meta:
+		model = Comment
+		exclude = ('name','post', 'active')
+
+
+
+class CreateNetworkForm(forms.ModelForm):
+	networkname = forms.CharField(required=True, max_length=50, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Title'}))
+	desc = forms.CharField(required=True, 
+		widget=forms.widgets.Textarea(
+			attrs={
+			"placeholder": "Enter a description of this network",
+			"class":"form-control",
+			}
+			),
+			label="",
+		)
+
+	class Meta:
+		model = Networks
+		exclude = ("owner",)
+
+
+class NetworkMembersForm(forms.ModelForm):
+	invited = forms.BooleanField(required=False)
+
+	class Meta:
+		model = NetworkMembers
+		exclude = ("network","owner","verified","user","accepted",)
+
+
+# class NetworkNotificationsForm(forms.ModelForm):
+# 	accepted = forms.BooleanField(required=False)
+# 	declined = forms.BooleanField(required=False)
+# 	responded = forms.BooleanField(required=False)
+
+# 	class Meta:
+# 		model = NetworkNotifications
+# 		exclude = ("network","fromuser","touser","invitedtojoin","requestedtojoin",)
 
 
 class SignUpForm(UserCreationForm):

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+<!-- {% load static %} -->
+
+{% block content %}
+
+<div class="container text-center">
+  <!-- <div class="row">
+    <div class="col-16"> -->
+
+
+	<h1>Edit Network</h1>
+<br/>
+
+
+{% if not checks %}
+
+  <h1>Profiles:</h1>
+  <form action="{% url 'editnetwork' pk %}" method="POST">
+
+  {{ formset.management_form }}
+  {% csrf_token %}
+
+
+  {% for form in formset.forms %}
+
+    <div class="form-group">
+      <!-- {{ form.as_p }} -->
+      <!-- {{ form.checkbox }}  -->
+      <!-- {{ form.text.value }} -->
+      {{ form.invited.value }}
+      {{ form.invited }}
+      
+    </div>
+
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+
+
+
+{% endif %}
+
+
+{% endblock %}
+

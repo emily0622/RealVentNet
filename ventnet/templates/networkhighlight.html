@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+	<h1>Network Highlight</h1>
+  {{ network.networkname }}
+  {{ network.desc }}
+  {{ network.id }}
+<br/>
+
+<a type="button" class="btn btn-light btn-sm"
+href="{% url 'editnetwork' network.id %}"
+>Edit Members</a>
+
+
+{% endblock %}

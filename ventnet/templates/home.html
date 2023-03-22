@@ -30,15 +30,17 @@
 			<br/>
 		  </small>
 		  <br/>
-		  <button type="button" class="btn btn-light btn-sm">Read More</button>
-		  <button type="button" class="btn btn-light btn-sm">Comment</button>
-		  <button type="button" class="btn btn-light btn-sm">Forward</button>
-		  <button type="button" class="btn btn-light btn-sm">Report</button>
+		  	<a type="button" class="btn btn-light btn-sm"
+			href="{% url 'venthighlight' meep.meepid %}"
+			>Read More</a>
+			<button type="button" class="btn btn-light btn-sm">Forward</button>
+			<button type="button" class="btn btn-light btn-sm">Report</button>
 
 		</div><br/><br/>
 	{% endfor %}
 
 </div>
+
 
 <!-- <div class="col-4">
 				<br/><br/><br/>
