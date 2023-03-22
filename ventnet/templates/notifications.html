@@ -1,39 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Notification</h1>
+<h1>Your Notifications</h1>
 
 {% if profile %}
 
-	<div class="container text-center">
-		<div class="row">
-			<div class="col-8">
-				<h1>{{ profile.user.username }}'s Profile</h1>
-				<br/>
+		{% if invited_list %}
+		<div class="container text-center">
+			<div class="row">
+				<div class="col-8">
+					<h1>{{ profile.user.username }}, you've been invited to join these networks</h1>
+					<br/>
+			<form method=POST>
+				{% csrf_token %}
+				{% for inv in invited_list %}
+					<button class="btn btn-outline-danger" name="{{ inv }}" value="accept" type="submit">
+						Accept
+					</button>
+					<button class="btn btn-outline-danger" name="{{ inv }}" value="decline" type="submit">
+						Decline
+					</button>
+				
+				
+				</form>
+			{% endfor %}
+			  
+		{% endif %}
 
 
-
-
-				{% if invited %}
-					{% for invite in invited %}
-						<div class="alert alert-dark" role="alert">
-							You were invited to join
-						  {{ invite.network.networkname }}
-						   by 
-						   {{ invite.network.owner }} <br/>
-
-
-			  				</small>
-							<form method=POST>
-								{% csrf_token %}
-							  <button name="{% invite.network.networkname %}" value="accept" type="submit" class="btn btn-light btn-sm">Accept</button>
-							  <button name="{% invite.network.networkname %}" value="decline" type="submit" class="btn btn-light btn-sm">Decline</button>
-							</form>
-
-						</div><br/>
-						<br/>
-					{% endfor %}
-				{% endif %}
 			</div>
 
 {% endif %}

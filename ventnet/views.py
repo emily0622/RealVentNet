@@ -126,31 +126,27 @@ def editnetwork(request,pk, fromcreatenet=False):
 	print(pk)
 	if request.user.is_authenticated:
 		net = get_object_or_404(Networks, id=pk)
-		print("NET ID IS HEREEE")
-		print(net)
 		profiles = Profile.objects.exclude(user=request.user)
 		profile_formset = formset_factory(NetworkMembersForm, extra=0)
 		formset = profile_formset(initial=[{'invited': x} for x in profiles])
 
 		checks = []
 		template_name = 'editnetwork.html'
-		form = NetworkMembersForm()
-
 		if (request.method == 'POST') and (fromcreatenet == False):
 			formset = profile_formset(request.POST)
 			print("post")
-			# if formset.is_valid():
-			# 	print("is valid")
-			# for form, profile in zip(formset.forms, profiles):
 			invited_list = list(formset.cleaned_data)
 			p = 0
 			for profile in profiles:
-					new_net = form.save(commit=False)
-					new_net.user = User.objects.get(username=profile)
-					new_net.network = net
-					new_net.invited = invited_list[p]['invited']
-					new_net.save()
-					p += 1
+				form = NetworkMembersForm()
+				print("profile")
+				print(profile.user.username)
+				new_net = form.save(commit=False)
+				new_net.user = User.objects.get(username=profile)
+				new_net.network = net
+				new_net.invited = invited_list[p]['invited']
+				new_net.save()
+				p += 1
 
 
 			# 	messages.success(request, ("Added Network"))
@@ -216,36 +212,38 @@ def notifications(request, pk):
 	if request.user.is_authenticated:
 		profile = Profile.objects.get(user_id=pk)
 		# userobj = User.objects.get(id=pk)
-		invited = NetworkMembers.objects.filter(user=pk, invited=True)
+		a = NetworkMembers.objects.all()
+		for thing in a:
+			print(thing.network.networkname)
+			print("to user")
+			print(thing.user)
+			print("from user")
+			print(thing.owner)
+			print(thing.accepted)
 
+		invited = NetworkMembers.objects.filter(user=pk, invited=True)
+		print("invited")
+		print(invited)
+		invited_list = [inv.network.networkname for inv in invited]
 
 		# Post Form logic
 		if request.method == "POST":
-			print("IN POST\n")
 			# Get current user
 			current_user_profile = request.user.profile
-			# Get form data
+			print(len(request.POST))
 			for invite in invited:
-				n = invite.network.networkname
-				print(n)
-				action = request.POST[n]
-				print(action)
-				# Decide to follow or unfollow
-				if action == "decline":
-					print("DECLINEED\n\n\n")
-					print(n)
-					# current_user_profile.follows.remove(profile)
-				elif action == "accept":
-					# current_user_profile.follows.add(profile)
-					print("ACCEPTED\n\n\n")
-					print(n)
-
-			# Save the profile
-			# current_user_profile.save()
-
-
-
-		return render(request, "notifications.html", {"profile":profile, "invited":invited})
+				status = request.POST[invite.network.networkname]
+				#if accepted
+				if status == 'accept':
+					invite.invited = False
+					invite.accepted = True
+					invite.save()
+				if status == 'decline':
+					invite.delete()
+		invited = NetworkMembers.objects.filter(user=pk, invited=True)
+		invited_list = [inv.network.networkname for inv in invited]
+			
+		return render(request, "notifications.html", {"profile":profile, "invited":invited, 'pk': pk, 'invited_list':invited_list,})
 	else:
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
 		return redirect('home')		

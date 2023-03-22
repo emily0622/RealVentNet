@@ -1,3 +1,4 @@
+from email.policy import default
 from django import forms
 from .models import Meep, Comment, Networks, NetworkMembers
 from django.contrib.auth.forms import UserCreationForm
@@ -64,6 +65,14 @@ class NetworkMembersForm(forms.ModelForm):
 		exclude = ("network","owner","verified","user","accepted",)
 
 
+# class NetworkNotificationsForm(forms.ModelForm):
+# 	accepted = forms.BooleanField(required=False)
+# 	declined = forms.BooleanField(required=False)
+# 	responded = forms.BooleanField(required=False)
+
+# 	class Meta:
+# 		model = NetworkNotifications
+# 		exclude = ("network","fromuser","touser","invitedtojoin","requestedtojoin",)
 
 
 class SignUpForm(UserCreationForm):

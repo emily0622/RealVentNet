@@ -56,6 +56,9 @@ class Networks(models.Model):
 # 	invitedtojoin = models.BooleanField(default=False)
 # 	requestedtojoin = models.BooleanField(default=False)
 # 	created_on = models.DateTimeField(auto_now_add=True)
+# 	accepted = models.BooleanField(default=False)
+# 	declined = models.BooleanField(default=False)
+# 	responded = models.BooleanField(default=False)
 
 # 	class Meta:
 # 		ordering = ['created_on']
