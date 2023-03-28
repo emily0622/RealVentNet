@@ -126,8 +126,8 @@ def add_ventpost(request):
 					for pair in scores[0]:
 						if pair['score'] > 0.3:
 							flags.append(pair['label'])
-				print(responses)
-				print(flags)
+				# print(responses)
+				# print(flags)
 
 		return render(request, 'add_ventpost.html', {"form":form, "responses": responses, "answer":answer, "flags":flags,})
 	else:
@@ -226,8 +226,8 @@ def createnetwork(request):
 
 
 def editnetwork(request,pk, fromcreatenet=False):
-	print("NET ID IS HEREEE")
-	print(pk)
+	# print("NET ID IS HEREEE")
+	# print(pk)
 	if request.user.is_authenticated:
 		net = get_object_or_404(Networks, id=pk)
 		profiles = Profile.objects.exclude(user=request.user)
@@ -239,13 +239,13 @@ def editnetwork(request,pk, fromcreatenet=False):
 		template_name = 'editnetwork.html'
 		if (request.method == 'POST') and (fromcreatenet == False):
 			formset = profile_formset(request.POST)
-			print("post")
+			# print("post")
 			invited_list = list(formset.cleaned_data)
 			p = 0
 			for profile in profiles:
 				form = NetworkMembersForm()
-				print("profile")
-				print(profile.user.username)
+				# print("profile")
+				# print(profile.user.username)
 				new_net = form.save(commit=False)
 				new_net.user = User.objects.get(username=profile)
 				new_net.network = net
@@ -318,17 +318,17 @@ def notifications(request, pk):
 		profile = Profile.objects.get(user_id=pk)
 		# userobj = User.objects.get(id=pk)
 		a = NetworkMembers.objects.all()
-		for thing in a:
-			print(thing.network.networkname)
-			print("to user")
-			print(thing.user)
-			print("from user")
-			print(thing.owner)
-			print(thing.accepted)
+		# for thing in a:
+		# 	print(thing.network.networkname)
+		# 	print("to user")
+		# 	print(thing.user)
+		# 	print("from user")
+		# 	print(thing.owner)
+		# 	print(thing.accepted)
 
 		invited = NetworkMembers.objects.filter(user=pk, invited=True)
-		print("invited")
-		print(invited)
+		# print("invited")
+		# print(invited)
 		invited_list = [inv.network.networkname for inv in invited]
 
 		# Post Form logic
