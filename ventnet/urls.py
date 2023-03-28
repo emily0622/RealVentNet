@@ -11,6 +11,7 @@ urlpatterns = [
     path('venthighlight/<slug:slug>', views.venthighlight, name='venthighlight'),
     # path('venthighlight/', views.venthighlight, name='venthighlight'),
     path('addcomment/<slug:slug>', views.addcomment, name='addcomment'),
+    path('addpromt/<slug:slug>', views.addpromt, name='addpromt'),
     path('createnetwork/', views.createnetwork, name='createnetwork'),
     path('editnetwork/<slug:pk>', views.editnetwork, name='editnetwork'),
     path('networkhighlight/<slug:pk>', views.networkhighlight, name='networkhighlight'),

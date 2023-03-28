@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+	<div class="container text-center">
+		<div class="row">
+			<div class="col-16">
+
+
+	<h1>Add a comment!</h1>
+<br/>
+
+
+<div class="alert alert-dark" role="alert">
+	{{ post.title }}<br/>
+	<button type="button" class="btn btn-link btn-sm">Source</button>
+	<br/>
+	<small class="text-muted">
+		({{ post.created_at}}) By 
+		@{{ post.user.username }}
+		<br/>
+	  {{ post.body }}
+	  <br/>
+	</small>
+	<br/>
+
+  </div><br/><br/>
+  
+
+
+
+<div class="card-body">
+	<h3>Use a Support Promt</h3>
+	<form  method=POST>
+		{% csrf_token %}
+
+		<select name="promt" class="form-select" aria-label="Default select example">
+		<option name="promt" value="promt">Pick a Support Promt Instead</option>
+		<option name="promt" value="I know this must be hard for you">I know this must be hard for you</option>
+		<option name="promt" value="I hear you">I hear you</option>
+		<option name="promt" value="Tell me more">Tell me more</option>
+		<option name="promt" value="How did this make you feel?">How did this make you feel?</option>
+		<option name="promt" value="I care about you">I care about you</option>
+		<option name="promt" value="I'm here for you">I'm here for you</option>
+		</select>
+
+		<br>
+		<button type="submit" class="btn btn-primary  btn-lg">Submit</button>
+
+	</form>
+  </div>
+
+
+{% endblock %}

@@ -9,7 +9,6 @@ class Networks(models.Model):
 	desc = models.TextField(max_length=400)
 	created_on = models.DateTimeField(auto_now_add=True)
 	owner = models.CharField(max_length=50)
-	private = models.BooleanField(default=False)
 
 	class Meta:
 		ordering = ['created_on']

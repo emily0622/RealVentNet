@@ -36,15 +36,23 @@
 	  Your comment is awaiting moderation
 	</div>
 	{% else %}
-	<h3>Leave a comment</h3>
-	<form method="post" style="margin-top: 1.3em;">
+	<h3>Write a comment</h3>
+	<form method="POST" action="" style="margin-top: 1.3em;">
 	  {{ comment_form.as_p }}
 	  {% csrf_token %}
 	  <!-- <input id="body" type="text" name="body" value="{{ body }}"> -->
 	  <button type="submit" class="btn btn-primary  btn-lg">Submit</button>
+
 	</form>
+
+<br>
+
+
 	{% endif %}
   </div>
+
+
+
 
 
 {% endblock %}

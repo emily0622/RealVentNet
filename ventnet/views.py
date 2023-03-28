@@ -118,7 +118,9 @@ def add_ventpost(request):
 			# selectednetwork = form['selectednetwork'].value()
 			print("EMILYYY SELECTED NETWORK")
 			# print(selectednetwork)
-			selectednetwork = request.POST['selectednetwork']
+			selectednetwork = 'public'
+			if networks_list != []:
+				selectednetwork = request.POST['selectednetwork']
 			print(selectednetwork)
 
 			if request.POST["submitform"] == "submitform":
@@ -126,8 +128,10 @@ def add_ventpost(request):
 					text = form['body'].value()
 					meep = form.save(commit=False)
 					meep.user = request.user
+					print(selectednetwork)
 					if selectednetwork != 'public':
-						meep.in_network == True
+						print("here we go!")
+						meep.in_network = True
 						meep.network = Networks.objects.get(networkname=selectednetwork)
 					meep.save()
 
@@ -222,9 +226,10 @@ def addcomment(request, slug):
 	if request.method == 'POST':
 		comment_form = CommentForm(request.POST)
 		if comment_form.is_valid():
-
+			print("form is valid")
 			# Create Comment object but don't save to database yet
 			new_comment = comment_form.save(commit=False)
+			# new_comment=Comment(post=post,name=request.user,body=text)
 			# Assign the current post to the comment
 			new_comment.post = post
 			new_comment.name = request.user
@@ -245,6 +250,30 @@ def addcomment(request, slug):
 	return render(request, template_name, {'post': post,
 											'new_comment': new_comment,
 											'comment_form': comment_form})
+
+
+
+
+
+def addpromt(request, slug):
+	template_name = 'addpromt.html'
+	post = get_object_or_404(Meep, meepid=slug)
+	# Comment posted
+	if request.method == 'POST':
+		print("in post")
+		if (request.method == 'POST') and (request.POST['promt'] != "promt"):
+			text = request.POST['promt']
+			promt_comment = Comment(post=post, name=request.user,body=text)
+			promt_comment.save()
+			print("we are in the promt section")
+			messages.success(request, ("Added comment"))
+			return venthighlight(request, slug)
+
+
+	return render(request, template_name, {'post': post,})
+
+
+
 
 
 def createnetwork(request):
@@ -285,7 +314,33 @@ def editnetwork(request,pk, fromcreatenet=False):
 	print(pk)
 	if request.user.is_authenticated:
 		net = get_object_or_404(Networks, id=pk)
-		profiles = Profile.objects.exclude(user=request.user)
+		# profiles = Profile.objects.exclude(user=request.user)
+		print("HERE WE GO AGGAINNN")
+		all_users = User.objects.exclude(id=request.user.id)
+		print("all_users")
+		print(all_users)
+		# alllll = NetworkMembers.objects.all()
+		# for entry in alllll:
+		# 	print(entry)
+		# 	print(entry.network)
+		# 	print(entry.accepted)
+		# print("allll")
+		# print(alllll)
+		invited_user = NetworkMembers.objects.filter(network=net,invited=True)
+		accepted_user = NetworkMembers.objects.filter(network=net,accepted=True)
+		invited_or_accepted = []
+		for m in invited_user:
+			invited_or_accepted.append(m.user)
+		for m in accepted_user:
+			invited_or_accepted.append(m.user)
+		print("invited_or_accepted")
+		print(invited_or_accepted)
+		profiles = []
+		for user in all_users:
+
+			if user not in invited_or_accepted:
+				profiles.append(user)
+
 
 		profile_formset = formset_factory(NetworkMembersForm, extra=0)
 		formset = profile_formset(initial=[{'invited': x} for x in profiles])
@@ -297,8 +352,7 @@ def editnetwork(request,pk, fromcreatenet=False):
 		template_name = 'editnetwork.html'
 		print("here emiry")
 		print(request)
-		# if (request.method == 'POST') and (request.POST['submit'] == "continue"):
-		if (request.method == 'POST'):
+		if (request.method == 'POST') and (request.POST['submit'] == "continue"):
 			print("IN POST")
 			print(request.POST)
 			return redirect('home')
@@ -308,14 +362,16 @@ def editnetwork(request,pk, fromcreatenet=False):
 			invited_list = list(formset.cleaned_data)
 			p = 0
 			for profile in profiles:
-				form = NetworkMembersForm()
-				# print("profile")
-				# print(profile.user.username)
-				new_net = form.save(commit=False)
-				new_net.user = User.objects.get(username=profile)
-				new_net.network = net
-				new_net.invited = invited_list[p]['invited']
-				new_net.save()
+				if invited_list[p]['invited'] == True:
+					print("SEEENDDDINGG INVITEEEE")
+					form = NetworkMembersForm()
+					# print("profile")
+					# print(profile.user.username)
+					new_net = form.save(commit=False)
+					new_net.user = User.objects.get(username=profile)
+					new_net.network = net
+					new_net.invited = True
+					new_net.save()
 				p += 1
 
 
@@ -381,7 +437,6 @@ def networkhighlight(request, pk):
 		member_list = NetworkMembers.objects.filter(network=network,accepted=True).values('user')
 		member_users = []
 		print(member_list)
-		print(member_list[0]['user'])
 		for member in member_list:
 			member_users.append(User.objects.get(id=member['user']))
 		# {% url 'profile' member.id %}
@@ -447,7 +502,7 @@ def login_user(request):
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			login(request, user)
-			messages.success(request, ("You Have Been Logged In!  Get MEEPING!"))
+			messages.success(request, ("You Have Been Logged In!"))
 			return redirect('home')
 		else:
 			messages.success(request, ("There was an error logging in. Please Try Again..."))

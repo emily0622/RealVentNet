@@ -5,21 +5,31 @@
 
 {% if profile %}
 
+
+<div class="container text-center">
+	<div class="row">
+		<div class="col-16">
+
+
 		{% if invited_list %}
 		<div class="container text-center">
 			<div class="row">
 				<div class="col-8">
-					<h1>{{ profile.user.username }}, you've been invited to join these networks</h1>
+					<p>{{ profile.user.username }}, you've been invited to join these networks</p>
 					<br/>
 			<form method=POST>
 				{% csrf_token %}
 				{% for inv in invited_list %}
+				<div class="card">
+					<div class="card-body">
+				<h4>{{ inv }}</h4>
 					<button class="btn btn-outline-danger" name="{{ inv }}" value="accept" type="submit">
 						Accept
 					</button>
 					<button class="btn btn-outline-danger" name="{{ inv }}" value="decline" type="submit">
 						Decline
 					</button>
+					</div></div>
 				
 				
 				</form>
@@ -29,8 +39,11 @@
 
 
 			</div>
-
+{% else %}
+You don't have any notifications right now!
 {% endif %}
+
+</div></div></div>	
 {% endblock %}
 
 
