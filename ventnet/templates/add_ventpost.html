@@ -21,6 +21,21 @@
 	{% csrf_token %}
   	{{ form.as_p }}
 
+
+
+
+  {% if networks %}
+    Network:
+    <select name="selectednetwork" class="form-select" aria-label="Default select example">
+      <option name="selectednetwork" value="public">Public</option>
+
+      {% for network in networks %}
+      <option name="selectednetwork" value="{{ network }}">{{ network }}</option>
+      {% endfor %}
+
+    </select>
+  {% endif%}
+<br>
   <button type="submit" name="submitform" value="info" class="btn btn-secondary">Reload Info!</button>
   <button type="submit" name="submitform" value="submitform" class="btn btn-secondary">Post Vent!</button>
 </form>

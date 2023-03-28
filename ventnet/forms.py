@@ -20,7 +20,7 @@ class MeepForm(forms.ModelForm):
 
 	class Meta:
 		model = Meep
-		exclude = ("user",)
+		exclude = ("user","in_network","network")
 
 
 class CommentForm(forms.ModelForm):

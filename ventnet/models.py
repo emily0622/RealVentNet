@@ -21,14 +21,15 @@ class Meep(models.Model):
 		User, related_name="meeps", 
 		on_delete=models.DO_NOTHING
 		)
-	title = models.CharField(max_length=50)
+	title = models.CharField(max_length=70)
 	link = models.URLField(max_length=200, blank=True)
 	# postimg = models.ImageField(upload_to='images/')
 	body = models.CharField(max_length=400)
 	created_at = models.DateTimeField(auto_now_add=True)
 	meepid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	in_network = models.BooleanField(default=False)
-	network = models.ForeignKey(Networks,on_delete=models.CASCADE,related_name='meepnetwork')
+	network = models.ForeignKey(Networks,blank=True,null=True,on_delete=models.CASCADE,related_name='meepnetwork')
+
 	def __str__(self):
 		return(
 			f"{self.user} "
@@ -40,7 +41,7 @@ class Meep(models.Model):
 class Comment(models.Model):
 	post = models.ForeignKey(Meep,on_delete=models.CASCADE,related_name='post')
 	name = models.CharField(max_length=50)
-	body = models.TextField(max_length=200)
+	body = models.TextField(max_length=1000)
 	created_on = models.DateTimeField(auto_now_add=True)
 	active = models.BooleanField(default=False)
 

@@ -34,15 +34,19 @@
 
 
 
-<div class="container">
+<div class="container text-center">
 	<div class="row">
-  
-	  <div class="col-md-8 card mb-4  mt-3 ">
+		<div class="card">
+
 		<div class="card-body">
 		  <!-- comments -->
 		  <h2>{{ comments.count }} comments</h2>
-  
+		</div>
+		</div>	
+
 		  {% for comment in comments %}
+		  <div class="card">
+		  <div class="card-body">
 		  <div class="comments" style="padding: 10px;">
 			<p class="font-weight-bold">
 			  {{ comment.name }}
@@ -52,11 +56,13 @@
 			</p>
 			{{ comment.body | linebreaks }}
 		  </div>
+		  </div>
+		  </div>
 		  {% endfor %}
 		</div>
 	  </div>
 	  
 	</div>
-  </div>
+
 
 {% endblock %}

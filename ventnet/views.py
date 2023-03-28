@@ -11,6 +11,10 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
 from django.forms import formset_factory
 import people_also_ask
+from django.db import models
+from django import forms
+
+from django.forms import ModelMultipleChoiceField
 # import .gitignore
 import requests
 # from decouple import config
@@ -69,7 +73,7 @@ people_also_ask.get_answer("Why is coffee bad for you?")
 """
 
 def home(request):
-	meeps = Meep.objects.all().order_by("-created_at")
+	meeps = Meep.objects.all().filter(in_network=False).order_by("-created_at")
 	return render(request, 'home.html', {"meeps":meeps,})
 
 
@@ -97,15 +101,61 @@ def add_ventpost(request):
 		responses = []
 		answer = False
 		flags = []
-
+		print("YOO EMMIRYYY")
+		networks = NetworkMembers.objects.filter(user=request.user, accepted=True)
+		
+		networks_list = []
+		for x in networks:
+			n = x.network.networkname
+			networks_list.append(n)
 		form = MeepForm(request.POST or None)
+		network_is = NetworkMembers.objects.filter(user=request.user, accepted=True).values('network')
+		# test = Networks.objects.filters(id=network_is)
+		print("davviddd")
+		# print(test)
+		# form.fields["network"] = ModelMultipleChoiceField(queryset=networks_list)
 		if request.method == "POST":
+			# selectednetwork = form['selectednetwork'].value()
+			print("EMILYYY SELECTED NETWORK")
+			# print(selectednetwork)
+			selectednetwork = request.POST['selectednetwork']
+			print(selectednetwork)
+
 			if request.POST["submitform"] == "submitform":
 				if form.is_valid():
+					text = form['body'].value()
 					meep = form.save(commit=False)
 					meep.user = request.user
+					if selectednetwork != 'public':
+						meep.in_network == True
+						meep.network = Networks.objects.get(networkname=selectednetwork)
 					meep.save()
-					messages.success(request, ("Your Meep Has Been Posted!"))
+
+					autocomment = ""
+					if_flag_words = False
+					scores = toxicity(text)
+					for pair in scores[0]:
+						if pair['score'] > 0.3:
+							flags.append(pair['label'])
+							if if_flag_words == False:
+								autocomment += "This post has the following flags: "
+							if_flag_words = True
+							autocomment += pair['label'] + ' '
+					if text != None:
+						related_questions = people_also_ask.get_related_questions(text, 3)
+						for question in related_questions:
+							ans = people_also_ask.get_answer(question)
+							if ans['has_answer'] == True:
+								autocomment += '\n' + question + '\n' + ans['response']
+								autocomment += '\n' + 'Source : ' + ans['link']
+					if autocomment != "":
+						if len(autocomment) > 1000:
+							autocomment = autocomment[:995] + ' ...'
+						autocommentobj = Comment(post=meep,name="AutoComment",body=autocomment)
+						autocommentobj.save()
+
+
+					messages.success(request, ("Your Vent Has Been Posted!"))
 					return redirect('home')
 			if request.POST["submitform"] == "info":
 				text = form['body'].value()
@@ -126,13 +176,13 @@ def add_ventpost(request):
 							responses.append(response)
 				
 					scores = toxicity(text)
+					print(scores)
 					for pair in scores[0]:
 						if pair['score'] > 0.3:
 							flags.append(pair['label'])
-				# print(responses)
-				# print(flags)
 
-		return render(request, 'add_ventpost.html', {"form":form, "responses": responses, "answer":answer, "flags":flags,})
+
+		return render(request, 'add_ventpost.html', {"form":form, "responses": responses, "answer":answer, "flags":flags,"networks":networks_list,})
 	else:
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
 		return redirect('home')
@@ -158,10 +208,7 @@ def venthighlight(request, slug):
 	template_name = 'venthighlight.html'
 	post = get_object_or_404(Meep, meepid=slug)
 	comments = Comment.objects.filter(post=post).order_by("-created_on")
-	# comments = Comment.objects.all()
-	# comments = get_object_or_404(Comment, post=)
-	# comment_object = get_object_or_404(Comment, post=post)
-	# comments = comment_object.comments.filter(active=True)
+
 
 	return render(request, template_name, {'post': post,
 											'comments': comments})
@@ -214,9 +261,12 @@ def createnetwork(request):
 				messages.success(request, ("Added Network"))
 				# html = 'editnetwork/' + str(new_net.id)
 				# return redirect('home')
+				print("creating boss!")
+				boss = NetworkMembers(network=new_net, user=request.user, owner=True,verified=False,invited=False,accepted=True,requested=False)
+				boss.save()
 				return editnetwork(request, new_net.id, True)
 			else:
-				messages.success(request, ("Couldn't add network"))
+				messages.success(request, ("Couldn't add network,"))
 				return redirect('home')
 		else:
 			network_form = CreateNetworkForm()
@@ -325,8 +375,18 @@ def networkhighlight(request, pk):
 		print(request.user.username)
 		if network.owner == request.user.username:
 			is_owner = True
-
-		return render(request, "networkhighlight.html", {"network":network,"owner":is_owner,})
+		meeps = Meep.objects.all().filter(network=network).order_by("-created_at")
+		print("users!")
+		print(NetworkMembers.objects.filter(network=network,accepted=True))
+		member_list = NetworkMembers.objects.filter(network=network,accepted=True).values('user')
+		member_users = []
+		print(member_list)
+		print(member_list[0]['user'])
+		for member in member_list:
+			member_users.append(User.objects.get(id=member['user']))
+		# {% url 'profile' member.id %}
+		print("passed")
+		return render(request, "networkhighlight.html", {"network":network,"owner":is_owner,"meeps":meeps,"member_list":member_users,})
 	else:
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
 		return redirect('home')		
