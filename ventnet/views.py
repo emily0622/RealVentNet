@@ -13,13 +13,13 @@ from django.forms import formset_factory
 import people_also_ask
 # import .gitignore
 import requests
-from decouple import config
+# from decouple import config
 
 
-API_TOKEN = config('API_TOKEN')
+# API_TOKEN = config('API_TOKEN')
 
 API_URL = "https://api-inference.huggingface.co/models/unitary/toxic-bert"
-headers = {"Authorization": f"Bearer {API_TOKEN}"}
+headers = {"Authorization": f"Bearer {'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'}"}
 
 def query(payload):
 	response = requests.post(API_URL, headers=headers, json=payload)
