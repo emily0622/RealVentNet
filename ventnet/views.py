@@ -11,13 +11,66 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
 from django.forms import formset_factory
 import people_also_ask
+# import .gitignore
+import requests
+from decouple import config
+
+
+API_TOKEN = config('API_TOKEN')
+
+API_URL = "https://api-inference.huggingface.co/models/unitary/toxic-bert"
+headers = {"Authorization": f"Bearer {API_TOKEN}"}
+
+def query(payload):
+	response = requests.post(API_URL, headers=headers, json=payload)
+	return response.json()
+	
+
+def toxicity(q):
+	output = query({
+	"inputs": q,})
+	return output
+
+"""
+Example output:
+toxicity(text)
+
+[[{'label': 'toxic', 'score': 0.9984544515609741}, 
+{'label': 'obscene', 'score': 0.9859963059425354}, 
+{'label': 'insult', 'score': 0.8170381188392639}, 
+{'label': 'severe_toxic', 'score': 0.36484864354133606}, 
+{'label': 'threat', 'score': 0.020054737105965614}, 
+{'label': 'identity_hate', 'score': 0.01344360038638115}]]
+"""
+
+
+
+"""
+Example output:
+people_also_ask.get_answer("Why is coffee bad for you?")
+
+{'has_answer': True,
+ 'question': 'Why is coffee bad for you?',
+ 'related_questions': ['Why is drinking coffee bad for you?',
+  'Is coffee good for your health?',
+  'Is coffee toxic to your body?',
+  'What does coffee do to your body?'],
+ 'response': 'Consuming too much caffeine can lead to jitteriness, anxiety, heart palpitations and even exacerbated panic attacks (34). If you are sensitive to caffeine and tend to become overstimulated, you may want to avoid coffee altogether. Another unwanted side effect is that it can disrupt sleep ( 35 ).Aug 30, 2018',
+ 'heading': 'Consuming too much caffeine can lead to jitteriness, anxiety, heart palpitations and even exacerbated panic attacks (34). If you are sensitive to caffeine and tend to become overstimulated, you may want to avoid coffee altogether. Another unwanted side effect is that it can disrupt sleep ( 35 ).Aug 30, 2018',
+ 'title': 'Coffee — Good or Bad? - Healthline',
+ 'link': 'https://www.healthline.com/nutrition/coffee-good-or-bad#:~:text=Consuming%20too%20much%20caffeine%20can,can%20disrupt%20sleep%20(%2035%20).',
+ 'displayed_link': 'www.healthline.com › nutrition › coffee-good-or-bad',
+ 'snippet_str': 'Consuming too much caffeine can lead to jitteriness, anxiety, heart palpitations and even exacerbated panic attacks (34). If you are sensitive to caffeine and tend to become overstimulated, you may want to avoid coffee altogether. Another unwanted side effect is that it can disrupt sleep ( 35 ).Aug 30, 2018\nwww.healthline.com › nutrition › coffee-good-or-bad\nhttps://www.healthline.com/nutrition/coffee-good-or-bad#:~:text=Consuming%20too%20much%20caffeine%20can,can%20disrupt%20sleep%20(%2035%20).\nCoffee — Good or Bad? - Healthline',
+ 'snippet_data': None,
+ 'date': None,
+ 'snippet_type': 'Definition Featured Snippet',
+ 'snippet_str_body': '',
+ 'raw_text': 'Featured snippet from the web\nConsuming too much caffeine can lead to jitteriness, anxiety, heart palpitations and even exacerbated panic attacks (34). If \nyou\n are sensitive to caffeine and tend to become overstimulated, \n may want to avoid \ncoffee\n altogether. Another unwanted side effect is that it can disrupt sleep ( 35 ).\nAug 30, 2018\nCoffee — Good or Bad? - Healthline\nwww.healthline.com\n › nutrition › coffee-good-or-bad'}
+"""
 
 def home(request):
 	meeps = Meep.objects.all().order_by("-created_at")
-	r = people_also_ask.get_related_questions("how did covid start")
-	print("PEOPLE ALSO ASK")
-	print(r)
-	return render(request, 'home.html', {"meeps":meeps, "r":r})
+	return render(request, 'home.html', {"meeps":meeps,})
 
 
 def profile_list(request):
@@ -38,18 +91,65 @@ def network_list(request):
 
 def add_ventpost(request):
 	if request.user.is_authenticated:
+		responses = []
+		answer = False
+		flags = []
+
 		form = MeepForm(request.POST or None)
 		if request.method == "POST":
-			if form.is_valid():
-				meep = form.save(commit=False)
-				meep.user = request.user
-				meep.save()
-				messages.success(request, ("Your Meep Has Been Posted!"))
-				return redirect('home')
-		return render(request, 'add_ventpost.html', {"form":form})
+			if request.POST["submitform"] == "submitform":
+				if form.is_valid():
+					meep = form.save(commit=False)
+					meep.user = request.user
+					meep.save()
+					messages.success(request, ("Your Meep Has Been Posted!"))
+					return redirect('home')
+			if request.POST["submitform"] == "info":
+				text = form['body'].value()
+				print(text)
+				if text != None:
+					related_questions = people_also_ask.get_related_questions(text, 3)
+					for question in related_questions:
+						ans = people_also_ask.get_answer(question)
+						if ans['has_answer'] == True:
+							answer = True
+							response = {}
+							response['question'] = question
+							response['answer'] = ans['response']
+							response['title'] = ans['title']
+							response['link'] = ans['link']
+							response['displayed_link'] = ans['displayed_link']
+							response['raw_text'] = ans['raw_text']
+							responses.append(response)
+				
+					scores = toxicity(text)
+					for pair in scores[0]:
+						if pair['score'] > 0.3:
+							flags.append(pair['label'])
+				print(responses)
+				print(flags)
+
+		return render(request, 'add_ventpost.html', {"form":form, "responses": responses, "answer":answer, "flags":flags,})
 	else:
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
 		return redirect('home')
+
+# request.POST[""]
+
+# Example output:
+# toxicity(text)
+
+# [[{'label': 'toxic', 'score': 0.9984544515609741}, 
+# {'label': 'obscene', 'score': 0.9859963059425354}, 
+# {'label': 'insult', 'score': 0.8170381188392639}, 
+# {'label': 'severe_toxic', 'score': 0.36484864354133606}, 
+# {'label': 'threat', 'score': 0.020054737105965614}, 
+# {'label': 'identity_hate', 'score': 0.01344360038638115}]]
+
+# Example output:
+# people_also_ask.get_answer("Why is coffee bad for you?")
+
+
 
 def venthighlight(request, slug):
 	template_name = 'venthighlight.html'

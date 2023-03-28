@@ -9,7 +9,7 @@ class MeepForm(forms.ModelForm):
 	body = forms.CharField(required=True, 
 		widget=forms.widgets.Textarea(
 			attrs={
-			"placeholder": "Enter Your VentNet VentPost!",
+			"placeholder": "Enter Your VentPost!",
 			"class":"form-control",
 			}
 			),

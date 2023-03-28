@@ -3,6 +3,8 @@
 
 {% block content %}
 
+
+
 <div class="container text-center">
   <!-- <div class="row">
     <div class="col-16"> -->
@@ -12,20 +14,62 @@
 <br/>
 
 
+
+
 {% if form %}
 <form  method=POST>
 	{% csrf_token %}
   	{{ form.as_p }}
 
-
-  <button type="submit" class="btn btn-secondary">Post Vent!</button>
+  <button type="submit" name="submitform" value="info" class="btn btn-secondary">Reload Info!</button>
+  <button type="submit" name="submitform" value="submitform" class="btn btn-secondary">Post Vent!</button>
 </form>
 {% endif %}
 </div>
-<br/><br/>
+<br/>
+{% if flags %}
+Your post is flagged for being:
+  {% for flag in flags %}
+  <br>
+  &#128681
+  {{ flag }}
+  {% endfor %}
+{% endif %}
 
 
-Toxic Flags:
+
+<br>
+{% if answer %}
+<div class="accordion" id="accordionExample">
+  {% for response in responses %}
+  <div class="card">
+    <div class="card-header" id="{{ response.question }}">
+      <h2 class="mb-0">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          {{ response.question }}
+        </button>
+      </h2>
+    </div>
+
+    <div id="collapseOne" class="collapse show" aria-labelledby="{{ response.question }}" data-parent="#accordionExample">
+      <div class="card-body">
+        {{ response.answer }}
+        <small class="text-muted">
+          <br>
+          Source: {{ response.title }}
+        <br>
+		  	<a href="{{ response.link }}">{{ response.displayed_link }}</a>
+        </small>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+
+
+
 
 
 {% endblock %}
