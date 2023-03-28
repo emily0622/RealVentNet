@@ -2,15 +2,18 @@
 {% load static %}
 
 {% block content %}
-	<h1>Network Highlight</h1>
-  {{ network.networkname }}
-  {{ network.desc }}
-  {{ network.id }}
-<br/>
+	<h1>Network Highlight: {{ network.networkname }}</h1>
+  Network Description: {{ network.desc }}
 
-<a type="button" class="btn btn-light btn-sm"
+<br>
+
+<br>
+{% if owner %}
+<a type="button" class="btn btn-success"
 href="{% url 'editnetwork' network.id %}"
 >Edit Members</a>
-
+<a type="button" class="btn btn-success"
+>Request User Verifiction</a>
+{% endif %}
 
 {% endblock %}

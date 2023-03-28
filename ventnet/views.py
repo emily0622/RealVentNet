@@ -83,7 +83,10 @@ def profile_list(request):
 
 def network_list(request):
 	if request.user.is_authenticated:
-		networks = Networks.objects.all().order_by("-created_on")
+		networks = Networks.objects.all()
+		# .order_by("-created_on")
+		print("the networks")
+		print(networks)
 		return render(request, 'network_list.html', {"networks":networks})
 	else:
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
@@ -209,6 +212,8 @@ def createnetwork(request):
 				new_net.save()
 
 				messages.success(request, ("Added Network"))
+				# html = 'editnetwork/' + str(new_net.id)
+				# return redirect('home')
 				return editnetwork(request, new_net.id, True)
 			else:
 				messages.success(request, ("Couldn't add network"))
@@ -226,17 +231,27 @@ def createnetwork(request):
 
 
 def editnetwork(request,pk, fromcreatenet=False):
-	# print("NET ID IS HEREEE")
-	# print(pk)
+	print("NET ID IS HEREEE")
+	print(pk)
 	if request.user.is_authenticated:
 		net = get_object_or_404(Networks, id=pk)
 		profiles = Profile.objects.exclude(user=request.user)
 
 		profile_formset = formset_factory(NetworkMembersForm, extra=0)
 		formset = profile_formset(initial=[{'invited': x} for x in profiles])
-
+		profiles_bool = False
+		if len(profiles) > 0:
+			print(len(profiles))
+			profiles_bool = True
 		checks = []
 		template_name = 'editnetwork.html'
+		print("here emiry")
+		print(request)
+		# if (request.method == 'POST') and (request.POST['submit'] == "continue"):
+		if (request.method == 'POST'):
+			print("IN POST")
+			print(request.POST)
+			return redirect('home')
 		if (request.method == 'POST') and (fromcreatenet == False):
 			formset = profile_formset(request.POST)
 			# print("post")
@@ -263,7 +278,7 @@ def editnetwork(request,pk, fromcreatenet=False):
 			return redirect('home')
 		else:
 			# network_form = CreateNetworkForm()
-			context = {'formset': formset,'checks': checks, 'pk': pk,}
+			context = {'formset': formset,'checks': checks, 'pk': pk, "profiles":profiles_bool,}
 			return render(request, template_name, context)
 	else:
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
@@ -304,8 +319,14 @@ def profile(request, pk):
 def networkhighlight(request, pk):
 	if request.user.is_authenticated:
 		network = Networks.objects.get(id=pk)
+		is_owner = False
+		print("NETOWRK OWNNERRR")
+		print(network.owner)
+		print(request.user.username)
+		if network.owner == request.user.username:
+			is_owner = True
 
-		return render(request, "networkhighlight.html", {"network":network,})
+		return render(request, "networkhighlight.html", {"network":network,"owner":is_owner,})
 	else:
 		messages.success(request, ("You Must Be Logged In To View This Page..."))
 		return redirect('home')		

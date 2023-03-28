@@ -12,35 +12,42 @@
 <br/>
 
 
-{% if not checks %}
+{% if profiles %}
+  {% if not checks %}
+    <h1>Profiles:</h1>
+    <form action="{% url 'editnetwork' pk %}" method="POST">
 
-  <h1>Profiles:</h1>
-  <form action="{% url 'editnetwork' pk %}" method="POST">
+    {{ formset.management_form }}
+    {% csrf_token %}
 
-  {{ formset.management_form }}
+
+    {% for form in formset.forms %}
+
+      <div class="form-group">
+        <!-- {{ form.as_p }} -->
+        <!-- {{ form.checkbox }}  -->
+        <!-- {{ form.text.value }} -->
+        {{ form.invited.value }}
+        {{ form.invited }}
+        
+      </div>
+
+      {% endfor %}
+
+      <button name="submit" value="submit" class="btn btn-primary" type="submit" >Submit</button>
+    </form>
+
+
+  {% endif %}
+{% else %}
+There are no other profiles to add
+{% endif %}
+<br>
+<br>
+<form method="POST">
   {% csrf_token %}
 
-
-  {% for form in formset.forms %}
-
-    <div class="form-group">
-      <!-- {{ form.as_p }} -->
-      <!-- {{ form.checkbox }}  -->
-      <!-- {{ form.text.value }} -->
-      {{ form.invited.value }}
-      {{ form.invited }}
-      
-    </div>
-
-    {% endfor %}
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-
-
-
-{% endif %}
-
-
+<button name="submit" value="continue" class="btn btn-primary" type="submit" >Skip</button>
+</form>
 {% endblock %}
 

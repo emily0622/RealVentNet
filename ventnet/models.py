@@ -3,6 +3,18 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 import uuid
 
+
+class Networks(models.Model):
+	networkname = models.CharField(max_length=50, unique=True)
+	desc = models.TextField(max_length=400)
+	created_on = models.DateTimeField(auto_now_add=True)
+	owner = models.CharField(max_length=50)
+	private = models.BooleanField(default=False)
+
+	class Meta:
+		ordering = ['created_on']
+
+
 # create meep model
 class Meep(models.Model):
 	user = models.ForeignKey(
@@ -15,7 +27,8 @@ class Meep(models.Model):
 	body = models.CharField(max_length=400)
 	created_at = models.DateTimeField(auto_now_add=True)
 	meepid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
+	in_network = models.BooleanField(default=False)
+	network = models.ForeignKey(Networks,on_delete=models.CASCADE,related_name='meepnetwork')
 	def __str__(self):
 		return(
 			f"{self.user} "
@@ -37,16 +50,6 @@ class Comment(models.Model):
 	def __str__(self):
 		return 'Comment {} by {}'.format(self.body, self.name)
 
-
-class Networks(models.Model):
-	networkname = models.CharField(max_length=50, unique=True)
-	desc = models.TextField(max_length=400)
-	created_on = models.DateTimeField(auto_now_add=True)
-	owner = models.CharField(max_length=50)
-	private = models.BooleanField(default=False)
-
-	class Meta:
-		ordering = ['created_on']
 
 
 # class NetworkNotifications(models.Model):

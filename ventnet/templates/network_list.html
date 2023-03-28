@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-	<h1>Profile List</h1>
+	<h1>Network List</h1>
 <br/>
 
 {% if networks %}
@@ -10,15 +10,10 @@
 
 		<div class="card mb-3" style="max-width: 540px;">
   <div class="row g-0">
-    <div class="col-md-4">
-      <img src="{% static 'images/default_profile_pic.png' %}" class="img-fluid rounded-start" alt="Profile Image">
-    </div>
     <div class="col-md-8">
       <div class="card-body">
         <h5 class="card-title">{{ network.networkname }}</h5>
-        <br/><br/>
         <p class="card-text"><a href="{% url 'networkhighlight' network.id %}">@{{ network.networkname|lower }}</a></p>
-
         <p class="card-text"><small>{{ network.desc }}</small></p>
         <p class="card-text"><small class="text-muted">Created on: {{ network.created_on }}</small></p>
 
@@ -26,7 +21,7 @@
     </div>
   </div>
 </div>
-<br/><br/>
+<br/>
 
 
 
